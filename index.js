@@ -27,6 +27,13 @@ async function run() {
             res.send(result)
         });
 
+        app.get('/feature-products', async (req, res) => {
+            const query = {};
+            const cursor = productCollection.find(query).limit(6);
+            const result = await cursor.toArray();
+            res.send(result)
+        });
+
         app.get('/product/:categoryId', async (req, res) => {
             const category = req.params.categoryId;
             const query = { category: category };
