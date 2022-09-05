@@ -19,6 +19,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db("techlog").collection("productCollection");
+        const userCollection = client.db("techlog").collection("users");
 
         app.get('/products', async (req, res) => {
             const query = {};
@@ -39,6 +40,18 @@ async function run() {
             const query = { category: category };
             const cursor = productCollection.find(query);
             const result = await cursor.toArray();
+            res.send(result)
+        });
+
+        app.put('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result)
         })
     }
