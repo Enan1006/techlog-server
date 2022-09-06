@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ async function run() {
         app.put('/users/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
+            console.log(user);
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = {
