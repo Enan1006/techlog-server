@@ -6,7 +6,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -21,6 +23,7 @@ async function run() {
         await client.connect();
         const productCollection = client.db("techlog").collection("productCollection");
         const userCollection = client.db("techlog").collection("users");
+        const reviewCollection = client.db("techlog").collection("reviews");
 
         app.get('/products', async (req, res) => {
             const query = {};
@@ -45,6 +48,7 @@ async function run() {
         });
 
         app.put('/users/:email', async (req, res) => {
+
             const email = req.params.email;
             const user = req.body;
             console.log(user);
@@ -54,7 +58,15 @@ async function run() {
                 $set: user
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            res.send(result)
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            res.send({ result, token })
+        });
+
+        app.post('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
         })
     }
     finally { }
