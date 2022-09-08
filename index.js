@@ -62,12 +62,46 @@ async function run() {
             res.send({ result, token })
         });
 
-        app.post('/reviews', async (req, res) => {
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const result = await userCollection.findOne(filter);
+            res.send(result)
+        });
+        app.patch('/users/:email', async (req, res) => {
+
+            const email = req.params.email;
+            const user = req.body;
+            console.log(user);
+            console.log(user);
+            const filter = {
+                email: email
+            };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+        });
+
+        app.get('/reviews', async (req, res) => {
             const query = {};
             const cursor = reviewCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
-        })
+        });
+
+        app.post('/reviews', async (req, res) => {
+            const info = req.body;
+            const doc = {
+                name: info.name,
+                email: info.email,
+                rating: info.rating,
+                message: info.message,
+            };
+            const result = await reviewCollection.insertOne(doc);
+            res.send(result)
+        });
     }
     finally { }
 }
